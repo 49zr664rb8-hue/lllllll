@@ -1,0 +1,30 @@
+name: Build APK
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip python3-dev git zip unzip openjdk-17-jdk
+          pip install buildozer
+      - name: Build APK
+        run: |
+          buildozer init
+          sed -i "s/title = My Application/title = 哈基米大冒险/" buildozer.spec
+          sed -i "s/package.name = myapp/package.name = hjm_adventure/" buildozer.spec
+          sed -i "s/source.include_exts = py,png,jpg,kv,atlas/source.include_exts = py,png,jpg,jpeg,bmp/" buildozer.spec
+          sed -i "s/# android.accept_sdk_license = False/android.accept_sdk_license = True/" buildozer.spec
+          buildozer android debug
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: apk
+          path: bin/*.apk
