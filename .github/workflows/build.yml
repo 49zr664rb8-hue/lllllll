@@ -15,13 +15,27 @@ jobs:
           sudo apt update
           sudo apt install -y python3-pip python3-dev git zip unzip openjdk-17-jdk
           pip install buildozer
+      - name: Create buildozer.spec
+        run: |
+          cat > buildozer.spec << 'EOF'
+          [app]
+          title = 哈基米大冒险
+          package.name = hjm_adventure
+          package.domain = org.example
+          source.dir = .
+          source.include_exts = py,png,jpg,jpeg,bmp
+          version = 0.1
+          requirements = python3,pygame
+          orientation = landscape
+          fullscreen = 1
+          android.archs = arm64-v8a, armeabi-v7a
+          android.accept_sdk_license = True
+          [buildozer]
+          log_level = 2
+          warn_on_root = 1
+          EOF
       - name: Build APK
         run: |
-          buildozer init
-          sed -i "s/title = My Application/title = 哈基米大冒险/" buildozer.spec
-          sed -i "s/package.name = myapp/package.name = hjm_adventure/" buildozer.spec
-          sed -i "s/source.include_exts = py,png,jpg,kv,atlas/source.include_exts = py,png,jpg,jpeg,bmp/" buildozer.spec
-          sed -i "s/# android.accept_sdk_license = False/android.accept_sdk_license = True/" buildozer.spec
           buildozer android debug
       - name: Upload APK
         uses: actions/upload-artifact@v3
